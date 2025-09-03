@@ -3,10 +3,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+def _normalized_database_url():
+    db_url = os.environ.get('DATABASE_URL')
+    if db_url and db_url.startswith('postgres://'):
+        # SQLAlchemy expects 'postgresql+psycopg2://'
+        db_url = db_url.replace('postgres://', 'postgresql+psycopg2://', 1)
+    return db_url
+
+
 class Config:
     """Base configuration class"""
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///sepsis_prediction.db'
+    SQLALCHEMY_DATABASE_URI = _normalized_database_url() or 'sqlite:///sepsis_prediction.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Model paths (PyTorch)
