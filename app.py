@@ -533,6 +533,14 @@ def simple_predict_sepsis(data):
     logger.info(f"Static prediction - Score: {score}, Prediction: {prediction}, Confidence: {confidence:.2f}%")
     return prediction, confidence, 'fallback'
 
+# Ensure tables exist on first request (useful in hosted envs)
+@app.before_first_request
+def initialize_database_if_needed():
+    try:
+        db.create_all()
+    except Exception as exc:
+        logger.error(f"Database initialization failed: {exc}")
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
